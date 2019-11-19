@@ -1,0 +1,11 @@
+{
+  "name": "hello-threejs",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel ./src/index.html"
+  },
+  "dependencies": {
+    "three": "^0.110.0"
+  }
+}
