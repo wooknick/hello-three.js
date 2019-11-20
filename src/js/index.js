@@ -1,46 +1,102 @@
 import * as THREE from "three";
+import Stats from "stats.js";
+import * as dat from "dat.gui";
 
-// Scene 설정
 const scene = new THREE.Scene();
-
-// Renderer 설정
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Camera 설정
 const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight,
-  1,
-  500
+  0.1,
+  1000
 );
-camera.position.set(0, 0, 100);
-camera.lookAt(0, 0, 0);
+const renderer = new THREE.WebGLRenderer();
+renderer.setClearColor(new THREE.Color(0xeeeeee, 1.0));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMapEnabled = true;
 
-// Material 설정
-const material = new THREE.LineBasicMaterial({ color: "green" });
+const axes = new THREE.AxisHelper(20);
+scene.add(axes);
 
-// Geometry 설정
-const geometry = new THREE.Geometry();
-geometry.vertices.push(new THREE.Vector3(-10, 0, 0)); // 꼭지점들
-geometry.vertices.push(new THREE.Vector3(0, 10, 0));
-geometry.vertices.push(new THREE.Vector3(10, 0, 0));
+const planeGeometry = new THREE.PlaneGeometry(60, 20, 1, 1);
+const planeMaterial = new THREE.MeshLambertMaterial({ color: 0xcccccc });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
-// Object 생성
-const line = new THREE.Line(geometry, material);
+plane.rotation.x = -0.5 * Math.PI;
+plane.position.x = 15;
+plane.position.y = 0;
+plane.position.z = 0;
+plane.receiveShadow = true;
+scene.add(plane);
 
-// Scene 내에 Object 추가
-scene.add(line);
+const cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+const cubeMaterial = new THREE.MeshLambertMaterial({
+  color: 0xff0000
+});
+const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
-// Scene Render
-renderer.render(scene, camera);
+cube.position.x = -4;
+cube.position.y = 3;
+cube.position.z = 0;
+cube.castShadow = true;
+scene.add(cube);
 
-// Animation
-// const animate = () => {
-//   requestAnimationFrame(animate);
-//   cube.rotation.x += 0.01;
-//   cube.rotation.y += 0.01;
-//   renderer.render(scene, camera);
-// };
-// animate();
+const sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+const sphereMaterial = new THREE.MeshLambertMaterial({
+  color: 0x7777ff
+});
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+sphere.position.x = 20;
+sphere.position.y = 4;
+sphere.position.z = 2;
+sphere.castShadow = true;
+scene.add(sphere);
+
+const spotLight = new THREE.SpotLight(0xffffff);
+spotLight.position.set(-40, 60, -10);
+spotLight.castShadow = true;
+scene.add(spotLight);
+
+camera.position.x = -30;
+camera.position.y = 40;
+camera.position.z = 30;
+camera.lookAt(scene.position);
+
+document.body.appendChild(renderer.domElement);
+// renderer.render(scene, camera);
+
+const stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+let step = 0;
+// const controls = new (function() {
+//   this.rotationSpeed = 0.02;
+//   this.bouncingSpeed = 0.03;
+// })();
+const controls = { rotationSpeed: 0.02, bouncingSpeed: 0.03 };
+const gui = new dat.GUI();
+gui.add(controls, "rotationSpeed", 0, 0.1);
+gui.add(controls, "bouncingSpeed", 0, 0.1);
+
+const renderScene = () => {
+  stats.begin();
+  cube.rotation.y += controls.rotationSpeed;
+  cube.rotation.x += controls.rotationSpeed;
+  cube.rotation.z += controls.rotationSpeed;
+  step += controls.bouncingSpeed;
+  sphere.position.x = 20 + 10 * Math.cos(step);
+  sphere.position.y = 2 + 10 * Math.abs(Math.sin(step));
+  renderer.render(scene, camera);
+  stats.end();
+  requestAnimationFrame(renderScene);
+};
+renderScene();
+
+const onResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
+window.addEventListener("resize", onResize, false);

@@ -6,6 +6,10 @@
     "dev": "parcel ./src/app/index.html"
   },
   "dependencies": {
+    "stats.js": "^0.17.0",
     "three": "^0.110.0"
+  },
+  "devDependencies": {
+    "dat.gui": "^0.7.6"
   }
 }
