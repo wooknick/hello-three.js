@@ -63,3 +63,6 @@ typings/
 # parcel
 .cache/
 dist/
+
+# private
+learning-threejs-master/
